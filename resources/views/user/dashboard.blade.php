@@ -34,21 +34,22 @@
                                 <strong>${{ $co->Camp->price }}k</strong>
                             </td>
                             <td>
-                                @if ($co->is_paid)
-                                <strong class="text-success"> Payment Successfully</strong>
-                                @else
-                                <strong>Waiting for Payment</strong>
+                                <strong>{{ $co->payment_status }}</strong>
+                            </td>
+                            <td>
+                                @if ($co->payment_status == 'waiting')
+                                <a href="{{ $co->midtrans_url }}" class="btn btn-primary">Pay Here</a>
                                 @endif
                             </td>
                             <td>
                                 <a href="#" class="btn btn-primary">
-                                    Get Invoice
+                                    Contact Support
                                 </a>
                             </td>
                         </tr>
                     @empty
                         <tr>
-                            <td colspan="3">No Data</td>
+                            <td colspan="3">No Camp Registered</td>
                         </tr>
                     @endforelse
 

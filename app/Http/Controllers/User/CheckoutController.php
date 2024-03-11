@@ -67,6 +67,8 @@ class CheckoutController extends Controller
         $user->email = $data['email'];
         $user->name = $data['name'];
         $user->occupation = $data['occupation'];
+        $user->phone = $data['phone'];
+        $user->address = $data['address'];
         $user->save();
 
         // Create checkout
@@ -142,11 +144,11 @@ class CheckoutController extends Controller
             'gross_amount' => $price,
         ];
 
-        $item_details = [
-            'id' => $orderId,
-            'price' => $price,
-            'quantity' => 1,
-            'name' => "Payment for {$checkout->Camp->title} Camp"
+        $item_details[] = [
+            "id" => $orderId,
+            "price" => $price,
+            "quantity" => 1,
+            "name" => "Payment for {$checkout->Camp->title} Camp"
         ];
 
         $userData = [
@@ -178,18 +180,20 @@ class CheckoutController extends Controller
             // Get Snap Payment Page URL
             $paymentUrl = \Midtrans\Snap::createTransaction($midtrans_params)->redirect_url;
             $checkout->midtrans_url = $paymentUrl;
+
             $checkout->save();
 
             return $paymentUrl;
         } catch (\Throwable $th) {
             //throw $th;
+            dd($th->getMessage());
             return false;
         }
     }
 
     public function midtransCallback(Request $request)
     {
-        $notif = new Midtrans\Notification();
+        $notif = $request->method() == 'POST' ? new Midtrans\Notification() :  Midtrans\Transaction::status($request->order_id);
 
         $transaction_status = $notif->transaction_status;
         $fraud = $notif->fraud_status;
